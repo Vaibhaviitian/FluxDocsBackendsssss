@@ -3,13 +3,11 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import mongoose from "mongoose";
 import connectDB from "./db/index.db.js";
 import { DocumentModel } from "./models/Document.model.js";
+import {app} from './app.js'
 
 dotenv.config();
-
-const app = express();
 app.use(cors());
 app.use(express.json());
 
@@ -42,7 +40,7 @@ io.on("connection", (socket) => {
             { data: data }, 
             { new: true, upsert: true }
           );
-          console.log("Document saved successfully");
+          // console.log("Document saved successfully");
         } catch (error) {
           console.error("Error saving document:", error);
         }

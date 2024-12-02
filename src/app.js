@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import rooter from "./Routes/user.routes.js";
 const app = express();
+
 app.use(
   cors({
     origin: "*",
@@ -11,19 +11,29 @@ app.use(
 );
 app.use(
   express.json({
-    limit: "20kb",
+    limit: "100kb",
   })
 );
+
 app.use(
   express.urlencoded({
     extended: true,
-    limit: "20kb",
+    limit: "100kb",
   })
 );
+// console.log("aaya hu app.js ");
+
 app.use(cookieParser());
+
 console.log("We had injected cookie parser");
 app.use(express.static("Public"));
 
-app.use("/user", rooter);
+import userrouter from "./Routes/user.routes.js";
+app.use("/api/user", userrouter);
+console.log("aaya hu app.js ");
+
+import otherrouter from "./Routes/other.routes.js";
+app.use("/api/other", otherrouter);
+console.log("aaya hu otherroutes ke section mein maa ke khane ki kasam ");
 
 export { app };
