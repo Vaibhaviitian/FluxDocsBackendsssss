@@ -14,7 +14,7 @@ const authsignupmw = async (req, res, next) => {
   if (error) {
     return res
       .status(404)
-      .json(new ApiResponse(404, "Error", `middleware says  ${error}`));
+      .json(new ApiResponse(404, "Error", `${error}`));
   }
   next();
 };
@@ -33,7 +33,7 @@ const authloginmw = async (req, res, next) => {
         new ApiResponse(
           404,
           "Error",
-          `Having error in signup middleware ${error}`
+          `${error}`
         )
       );
   }
