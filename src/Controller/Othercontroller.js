@@ -1,14 +1,14 @@
 import ApiResponse from "../Utils/Apiresponse.js";
-const other = async (req, res) => {
+const Checkingauthorizaion = async (req, res) => {
   try {
     res
       .status(200)
-      .json(new ApiResponse(200, "SEX", "User registered successfully"));
+      .json(new ApiResponse(200, "True", "User verified safely and securely"));
   } catch (error) {
     return res
       .status(404)
-      .json({ message: `Having error in the registering user ${error}` });
+      .json({ message: `Having error in the verifing user ${error}` });
   }
 };
 
-export { other };
+export { Checkingauthorizaion };
