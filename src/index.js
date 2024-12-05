@@ -4,7 +4,7 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import connectDB from "./db/index.db.js";
-import { DocumentModel } from "./models/Document.model.js";
+import { DocumentModel } from "./Models/Document.model.js";
 import {app} from './app.js'
 
 dotenv.config();

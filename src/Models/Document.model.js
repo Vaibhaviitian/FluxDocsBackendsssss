@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 const DocumentSchema = new mongoose.Schema(
   {
     _id: String,
+    title:{
+      type:String,
+    },
     data: {
       type: Object,
       default: { ops: [{ insert: "" }] },
