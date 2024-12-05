@@ -66,8 +66,6 @@ const LoginUser = async (req, res) => {
 
 const saving_title = async (req, res) => {
   const { title, docid, user_id } = req.body;
-
-  // Check for required fields
   if (!title || !docid || !user_id) {
     return res.status(400).json({
       message: "Please provide all required fields: title, docid, and user_id.",
@@ -75,31 +73,20 @@ const saving_title = async (req, res) => {
   }
 
   try {
-    // Find the document by ID
     const doc = await DocumentModel.findById(docid);
-
-    // If the document does not exist, return an error
     if (!doc) {
       return res.status(404).json({ message: "Document not found." });
     }
 
-    // Assign the logged-in user as the owner if this is the first save
     if (!doc.owner) {
-      doc.owner = user_id; // Assign the owner only if it's not already set
+      doc.owner = user_id; 
     } else if (doc.owner.toString() !== user_id) {
-      // If the logged-in user is not the owner, deny permission to edit
       return res.status(403).json({
         message: "Only the owner of the document can edit it.",
       });
     }
-
-    // Update the document title
     doc.title = title;
-
-    // Save the changes
     await doc.save();
-
-    // Populate the owner field with the full user object instead of just the user_id
     const populatedDoc = await DocumentModel.findById(docid).populate("owner");
 
     return res.status(200).json({
