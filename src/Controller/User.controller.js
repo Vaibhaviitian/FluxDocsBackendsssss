@@ -101,7 +101,7 @@ const saving_title = async (req, res) => {
 };
 
 const checking_loggedinuser = async (req, res) => {
-  const { docid} = req.body;
+  const { docid } = req.body;
   if (!docid) {
     return res.status(400).json({
       message: "Please provide all required fields: docid and user_id.",
@@ -116,18 +116,17 @@ const checking_loggedinuser = async (req, res) => {
         .status(404)
         .json({ message: "Document not found.", data: false });
     }
-    if(doc.owner && doc.owner._id){
+    if (doc.owner && doc.owner._id) {
       return res.status(200).json({
         data: doc.owner._id,
         message: true,
       });
-    }else{
+    } else {
       return res.status(200).json({
         data: "Doc not having any owner save it to",
         message: false,
       });
     }
-    
   } catch (error) {
     console.error("Error while checking owner:", error);
     return res.status(500).json({
@@ -136,7 +135,35 @@ const checking_loggedinuser = async (req, res) => {
     });
   }
 };
+const anyuser = async (req, res) => {
+  const { user_id } = req.body;
+  if (!user_id) {
+    return res.status(400).json({
+      message: "Please provide all required fields: user_id.",
+    });
+  }
 
+  try {
+    const user = await UserModel.findById(user_id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Document not found.", data: false });
+    }
+    res.status(200)
+    .json({
+      data:user,
+      message:"User getting succesfully"
+    })
+  } catch (error) {
+    console.error("Error while checking owner:", error);
+    return res.status(500).json({
+      message: `Internal Server Error: ${error.message}`,
+      data: false,
+    });
+  }
+};
 const mydocs = async (req, res) => {
   const { user_id } = req.body;
   try {
@@ -155,4 +182,4 @@ const mydocs = async (req, res) => {
   }
 };
 
-export { RegisterUser, LoginUser, saving_title, checking_loggedinuser, mydocs };
+export { RegisterUser, LoginUser, saving_title, checking_loggedinuser, mydocs,anyuser };
