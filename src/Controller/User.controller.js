@@ -101,41 +101,39 @@ const saving_title = async (req, res) => {
 };
 
 const checking_loggedinuser = async (req, res) => {
-  const { docid, user_id } = req.body;
-
-  if (!docid || !user_id) {
+  const { docid} = req.body;
+  if (!docid) {
     return res.status(400).json({
       message: "Please provide all required fields: docid and user_id.",
     });
   }
 
   try {
-    // Fetch the document and populate the owner field
     const doc = await DocumentModel.findById(docid).populate("owner");
 
     if (!doc) {
-      return res.status(404).json({ message: "Document not found." });
+      return res
+        .status(404)
+        .json({ message: "Document not found.", data: false });
     }
-
-    // Log values for debugging
-    console.log("Owner ID (from document):", doc.owner._id.toString());
-    console.log("User ID (from request):", user_id);
-
-    // Compare the owner._id with user_id
-    if (doc.owner._id.toString() === user_id) {
+    if(doc.owner && doc.owner._id){
       return res.status(200).json({
-        message: true, // User is the owner
+        data: doc.owner._id,
+        message: true,
       });
-    } else {
+    }else{
       return res.status(200).json({
-        message: false, // User is not the owner
+        data: "Doc not having any owner save it to",
+        message: false,
       });
     }
+    
   } catch (error) {
-    console.error("Error while checking owner", error);
-    return res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+    console.error("Error while checking owner:", error);
+    return res.status(500).json({
+      message: `Internal Server Error: ${error.message}`,
+      data: false,
+    });
   }
 };
 
@@ -157,4 +155,4 @@ const mydocs = async (req, res) => {
   }
 };
 
-export { RegisterUser, LoginUser, saving_title, checking_loggedinuser ,mydocs};
+export { RegisterUser, LoginUser, saving_title, checking_loggedinuser, mydocs };
