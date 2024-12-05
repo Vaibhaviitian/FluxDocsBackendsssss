@@ -3,6 +3,7 @@ import { UserModel } from "../Models/User.model.js";
 import ApiResponse from "../Utils/Apiresponse.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const RegisterUser = async (req, res) => {
   try {
@@ -79,7 +80,7 @@ const saving_title = async (req, res) => {
     }
 
     if (!doc.owner) {
-      doc.owner = user_id; 
+      doc.owner = user_id;
     } else if (doc.owner.toString() !== user_id) {
       return res.status(403).json({
         message: "Only the owner of the document can edit it.",
@@ -99,4 +100,61 @@ const saving_title = async (req, res) => {
   }
 };
 
-export { RegisterUser, LoginUser, saving_title };
+const checking_loggedinuser = async (req, res) => {
+  const { docid, user_id } = req.body;
+
+  if (!docid || !user_id) {
+    return res.status(400).json({
+      message: "Please provide all required fields: docid and user_id.",
+    });
+  }
+
+  try {
+    // Fetch the document and populate the owner field
+    const doc = await DocumentModel.findById(docid).populate("owner");
+
+    if (!doc) {
+      return res.status(404).json({ message: "Document not found." });
+    }
+
+    // Log values for debugging
+    console.log("Owner ID (from document):", doc.owner._id.toString());
+    console.log("User ID (from request):", user_id);
+
+    // Compare the owner._id with user_id
+    if (doc.owner._id.toString() === user_id) {
+      return res.status(200).json({
+        message: true, // User is the owner
+      });
+    } else {
+      return res.status(200).json({
+        message: false, // User is not the owner
+      });
+    }
+  } catch (error) {
+    console.error("Error while checking owner", error);
+    return res
+      .status(500)
+      .json({ message: `Internal Server Error: ${error.message}` });
+  }
+};
+
+const mydocs = async (req, res) => {
+  const { user_id } = req.body;
+  try {
+    if (!user_id) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+    const docs = await DocumentModel.find({ owner: user_id });
+    if (docs.length === 0) {
+      return res.status(404).json({ message: "No documents found.", docs: [] });
+    }
+    return res
+      .status(200)
+      .json({ message: "Documents retrieved successfully.", docs });
+  } catch (error) {
+    return res.status(404).json({ message: `Having error while ${error}` });
+  }
+};
+
+export { RegisterUser, LoginUser, saving_title, checking_loggedinuser ,mydocs};
