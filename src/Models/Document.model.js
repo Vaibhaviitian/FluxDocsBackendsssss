@@ -29,7 +29,7 @@ const DocumentSchema = new mongoose.Schema(
           ref: "User",
           required: true,
         },
-        permissions: { 
+        permission: { 
           type: String, 
           enum: ['view', 'edit'], 
           default: 'view'

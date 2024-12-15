@@ -32,8 +32,8 @@ import userrouter from "./Routes/user.routes.js";
 app.use("/api/user", userrouter);
 console.log("aaya hu app.js ");
 
-import otherrouter from "./Routes/other.routes.js";
-app.use("/api/other", otherrouter);
+import collabroutes from "./Routes/other.routes.js";
+app.use("/api/collabs", collabroutes);
 console.log("aaya hu otherroutes ke section mein maa ke khane ki kasam ");
 
 export { app };

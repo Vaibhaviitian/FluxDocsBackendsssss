@@ -3,8 +3,7 @@ import mongoose, { mongo } from "mongoose";
 const Requesterschema = new mongoose.Schema(
   {
     document: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Document",
+      type: String, 
       required: true,
     },
     requester: {
@@ -25,7 +24,7 @@ const Requesterschema = new mongoose.Schema(
     permission: {
       type: String,
       enum: ["view", "edit"],
-      required: true,
+      default: "view", 
     },
     createdAt: {
       type: Date,

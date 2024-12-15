@@ -182,4 +182,19 @@ const mydocs = async (req, res) => {
   }
 };
 
-export { RegisterUser, LoginUser, saving_title, checking_loggedinuser, mydocs,anyuser };
+const all_docs = async(req,res)=>{
+  try {
+    const documents = await DocumentModel.find().populate('owner');
+    if (documents.length === 0) {
+      return res.status(404).json({ message: 'No documents found' });
+    }
+    return res.status(200).json({
+      message: 'Documents fetched successfully',
+      data: documents,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: `Error fetching documents: ${error.message}` });
+  }
+}
+
+export { RegisterUser, LoginUser, saving_title, checking_loggedinuser, mydocs,anyuser,all_docs };
