@@ -1,7 +1,6 @@
 import { DocumentModel } from "../Models/Document.model.js";
 import { requestmodel } from "../Models/Request.model.js";
 import ApiResponse from "../Utils/Apiresponse.js";
-import mongoose from "mongoose";
 const creatingcollabrequests = async (req, res) => {
   try {
     const { user_id, doc_id, permission } = req.body;
@@ -31,7 +30,7 @@ const creatingcollabrequests = async (req, res) => {
     if (requests.includes(true)) {
       return res
         .status(200)
-        .json({ message: "Request sent already", bhej: false });
+        .json({ message: "Request sent already", status: "Pending..." });
     }
     const isAlreadyCollaborator = document.collaborators.some(
       (collaborator) =>
@@ -40,9 +39,10 @@ const creatingcollabrequests = async (req, res) => {
     );
 
     if (isAlreadyCollaborator) {
-      return res
-        .status(400)
-        .json({ message: "You already have this permission.", bhej: false });
+      return res.status(400).json({
+        message: "You already have this permission.",
+        status: "Pending...",
+      });
     }
 
     const newRequest = await requestmodel.create({
@@ -135,17 +135,18 @@ const getUserRequests = async (req, res) => {
       .find({
         $or: [{ owner: user_id }],
       })
-      .populate("document")
       .populate("owner")
       .populate("requester");
 
     if (!requests || requests.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No collaboration requests found for this user" });
+      return res.status(200).json({
+        message: "No collaboration requests found for this user",
+        data: [],
+      });
     }
+
     return res.status(200).json({
-      message: "Requests fetched successfully",
+      message: "recieved Requests fetched successfully",
       data: requests,
     });
   } catch (error) {
@@ -166,19 +167,20 @@ const sended_request = async (req, res) => {
       .find({
         $or: [{ requester: user_id }],
       })
-      .populate("document")
       .populate("owner")
       .populate("requester");
 
     if (!requests || requests.length === 0) {
       return res
         .status(404)
-        .json({ message: "No collaboration requests found for this user" });
+        .json({
+          message: "No collaboration requests found for this user",
+          data: [],
+        });
     }
-
     return res.status(200).json({
-      message: "Requests fetched successfully",
-      data: requests,
+      message: "sended Requests fetched successfully",
+      data:requests
     });
   } catch (error) {
     return res
