@@ -4,13 +4,14 @@ import ApiResponse from "../Utils/Apiresponse.js";
 const creatingcollabrequests = async (req, res) => {
   try {
     const { user_id, doc_id, permission } = req.body;
+    console.log(user_id, doc_id, permission);
 
     if (!user_id || !doc_id) {
       return res.status(404).json({ message: `Provide all details properly` });
     }
 
     const document = await DocumentModel.findById(doc_id);
-
+    console.log(document);
     if (!document) {
       return res
         .status(404)
@@ -20,14 +21,12 @@ const creatingcollabrequests = async (req, res) => {
     if (!Array.isArray(document.requests)) {
       document.requests = [];
     }
-    const requests = await Promise.all(
-      document.requests.map(async (requestId) => {
-        const request = await requestmodel.findById(requestId);
-        return request && request.status.toString() === "pending";
-      })
-    );
-
-    if (requests.includes(true)) {
+    const existingRequest = await requestmodel.findOne({
+      _id: { $in: document.requests },
+      requester: user_id,
+      status: "pending",
+    });
+    if (existingRequest) {
       return res
         .status(200)
         .json({ message: "Request sent already", status: "Pending..." });
@@ -35,11 +34,12 @@ const creatingcollabrequests = async (req, res) => {
     const isAlreadyCollaborator = document.collaborators.some(
       (collaborator) =>
         collaborator.user.toString() === user_id &&
-        collaborator.permission === permission
+        collaborator.permission.toString() === permission.toString()
     );
-
+    console.log(isAlreadyCollaborator);
     if (isAlreadyCollaborator) {
-      return res.status(400).json({
+      console.log(isAlreadyCollaborator);
+      return res.status(200).json({
         message: "You already have this permission.",
         status: "Pending...",
       });
@@ -74,6 +74,7 @@ const creatingcollabrequests = async (req, res) => {
 
 const handlerequest = async (req, res) => {
   const { action, request_id, user_id } = req.body;
+  console.log(action, request_id, user_id);
   if (!request_id || !action) {
     return res.status(400).json({ message: "Provide all details properly." });
   }
@@ -140,7 +141,7 @@ const getUserRequests = async (req, res) => {
 
     if (!requests || requests.length === 0) {
       return res.status(200).json({
-        message: "No collaboration requests found for this user",
+        message: "No recieved requests found for this user",
         data: [],
       });
     }
@@ -171,16 +172,14 @@ const sended_request = async (req, res) => {
       .populate("requester");
 
     if (!requests || requests.length === 0) {
-      return res
-        .status(404)
-        .json({
-          message: "No collaboration requests found for this user",
-          data: [],
-        });
+      return res.status(200).json({
+        message: "No sended requests found for this user",
+        data: [],
+      });
     }
     return res.status(200).json({
       message: "sended Requests fetched successfully",
-      data:requests
+      data: requests,
     });
   } catch (error) {
     return res
