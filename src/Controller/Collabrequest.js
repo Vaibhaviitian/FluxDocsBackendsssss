@@ -1,5 +1,6 @@
 import { DocumentModel } from "../Models/Document.model.js";
 import { requestmodel } from "../Models/Request.model.js";
+import { UserModel } from "../Models/User.model.js";
 import ApiResponse from "../Utils/Apiresponse.js";
 const creatingcollabrequests = async (req, res) => {
   try {
@@ -26,11 +27,14 @@ const creatingcollabrequests = async (req, res) => {
       requester: user_id,
       status: "pending",
     });
+    console.log(document.owner);
+
     if (existingRequest) {
       return res
         .status(200)
         .json({ message: "Request sent already", status: "Pending..." });
     }
+
     const isAlreadyCollaborator = document.collaborators.some(
       (collaborator) =>
         collaborator.user.toString() === user_id &&
@@ -53,8 +57,18 @@ const creatingcollabrequests = async (req, res) => {
       status: "pending",
     });
 
+    const sender = await UserModel.findById(user_id);
+    sender.sentRequests.push(newRequest._id);
+    console.log(document.owner);
+    const receiver = await UserModel.findById(document.owner);
+    console.log(receiver);
+    receiver.receivedRequests.push(newRequest._id);
+
     document.requests.push(newRequest._id);
+
     await document.save();
+    await sender.save();
+    await receiver.save();
 
     res
       .status(200)
@@ -93,12 +107,14 @@ const handlerequest = async (req, res) => {
   }
 
   if (action.toString() === "accepted") {
+    console.log("ACceptin.......");
     document.collaborators.push({
       user: request.requester,
-      permission: request.permission,
+      permission: "edit",
     });
 
     request.status = "accepted";
+    request.permission = "edit";
 
     await document.save();
     await request.save();
@@ -113,8 +129,15 @@ const handlerequest = async (req, res) => {
         )
       );
   } else if (action.toString() === "rejected") {
+    console.log("rejecttingggggggggg");
+    request.permission = "view";
+    document.collaborators.push({
+      user: request.requester,
+      permission: "view",
+    });
     request.status = "rejected";
     await request.save();
+    await document.save();
 
     res
       .status(200)
@@ -188,9 +211,30 @@ const sended_request = async (req, res) => {
   }
 };
 
+const delete_doc = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if(!id){
+      return res.status(404).json({ message: "Doc Id not found" });
+    }
+    const doc = await DocumentModel.findOneAndDelete({ _id: id });
+    console.log(doc);
+    if (!doc) {
+      return res.status(404).json({ message: "Doc not found" });
+    }
+
+    return res.status(200).json({ message: "Doc deleted successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: `Error while deleting doc: ${error.message}` });
+  }
+};
+
 export {
   creatingcollabrequests,
   handlerequest,
   getUserRequests,
   sended_request,
+  delete_doc,
 };

@@ -31,8 +31,7 @@ const DocumentSchema = new mongoose.Schema(
         },
         permission: { 
           type: String, 
-          enum: ['view', 'edit'], 
-          default: 'view'
+          default: "view"
         }
       },
     ],
