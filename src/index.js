@@ -5,7 +5,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import connectDB from "./db/index.db.js";
 import { DocumentModel } from "./Models/Document.model.js";
-import {app} from './app.js'
+import { app } from "./app.js";
 
 dotenv.config();
 app.use(cors());
@@ -26,9 +26,20 @@ io.on("connection", (socket) => {
   socket.on("get-document", async (documentId) => {
     try {
       const data = await findOrCreateDocument(documentId);
+      console.log(documentId);
       socket.join(documentId);
       socket.emit("load-document", data);
-
+      socket.on("selection-change", (data) => {
+        const { documentId, userName, cursorPosition, highlightedText } = data;
+        console.log(`${userName} is interacting with document ${documentId}`);
+        if (cursorPosition !== null) {
+          console.log(`${userName} cursor is at position: ${cursorPosition}`);
+        }
+        if (highlightedText) {
+          console.log(`${userName} highlighted text: "${highlightedText}"`);
+        }
+        socket.broadcast.to(documentId).emit("user-selection-update", data);
+      });
       socket.on("send-changes", (delta) => {
         socket.broadcast.to(documentId).emit("receive-changes", delta);
       });
@@ -36,8 +47,8 @@ io.on("connection", (socket) => {
       socket.on("save-changes", async (data) => {
         try {
           await DocumentModel.findByIdAndUpdate(
-            documentId, 
-            { data: data }, 
+            documentId,
+            { data: data },
             { new: true, upsert: true }
           );
           // console.log("Document saved successfully");
@@ -59,7 +70,7 @@ const findOrCreateDocument = async (id) => {
 
   return await DocumentModel.create({
     _id: id,
-    data: { ops: [{ insert: '' }] }
+    data: { ops: [{ insert: "" }] },
   });
 };
 
