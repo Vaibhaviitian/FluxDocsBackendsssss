@@ -21,6 +21,7 @@ const io = new Server(services, {
 });
 
 const documents = {};
+const active_users_ondoc = {};
 
 io.on("connection", (socket) => {
   socket.on("get-document", async (documentId) => {
@@ -59,6 +60,27 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Document retrieval error:", error);
     }
+  });
+  socket.on("join-document", ({ documentId, userID, userName }) => {
+    if (!active_users_ondoc[documentId]) {
+      active_users_ondoc[documentId] = [];
+    }
+    active_users_ondoc[documentId].push({ userID, userName, socketId: socket.id });
+
+    console.log(`${userName} joined document ${documentId}`);
+
+    io.to(documentId).emit("active-users", active_users_ondoc[documentId]);
+
+    socket.join(documentId);
+  });
+  socket.on("disconnect", () => {
+    for (const documentId in active_users_ondoc) {
+      active_users_ondoc[documentId] = active_users_ondoc[documentId].filter(
+        (user) => user.socketId !== socket.id
+      );
+      io.to(documentId).emit("active-users", active_users_ondoc[documentId]);
+    }
+    console.log(`Socket disconnected: ${socket.id}`);
   });
 });
 

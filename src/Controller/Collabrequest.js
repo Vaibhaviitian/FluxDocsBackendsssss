@@ -214,7 +214,7 @@ const sended_request = async (req, res) => {
 const delete_doc = async (req, res) => {
   try {
     const { id } = req.body;
-    if(!id){
+    if (!id) {
       return res.status(404).json({ message: "Doc Id not found" });
     }
     const doc = await DocumentModel.findOneAndDelete({ _id: id });
@@ -230,11 +230,33 @@ const delete_doc = async (req, res) => {
       .json({ message: `Error while deleting doc: ${error.message}` });
   }
 };
+const individual_doc = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(404).json({ message: "Doc Id not found" });
+    }
+    const doc = await DocumentModel.findById(id)
+      .populate("collaborators.user") // This will populate the entire user object
+      .exec();
 
+    console.log(doc);
+    if (!doc) {
+      return res.status(404).json({ message: "Doc not found" });
+    }
+
+    return res.status(200).json({ message: doc });
+  } catch (error) {
+    return res.status(500).json({
+      message: `Error while getting individual doc: ${error.message}`,
+    });
+  }
+};
 export {
   creatingcollabrequests,
   handlerequest,
   getUserRequests,
   sended_request,
   delete_doc,
+  individual_doc,
 };
