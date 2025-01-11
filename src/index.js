@@ -65,7 +65,11 @@ io.on("connection", (socket) => {
     if (!active_users_ondoc[documentId]) {
       active_users_ondoc[documentId] = [];
     }
-    active_users_ondoc[documentId].push({ userID, userName, socketId: socket.id });
+    active_users_ondoc[documentId].push({
+      userID,
+      userName,
+      socketId: socket.id,
+    });
 
     console.log(`${userName} joined document ${documentId}`);
 
@@ -82,6 +86,17 @@ io.on("connection", (socket) => {
     }
     console.log(`Socket disconnected: ${socket.id}`);
   });
+  socket.on("sending-message", (message, callback) => {
+    console.log("Received message from client:", message.chatMessage);
+    console.log("Received message from client:", message.userName);
+
+    // Correct event name
+    socket.broadcast.emit("new-message-to-all", message);
+
+    if (callback) {
+      callback("Message received successfully");
+    }
+  }); 
 });
 
 const findOrCreateDocument = async (id) => {
