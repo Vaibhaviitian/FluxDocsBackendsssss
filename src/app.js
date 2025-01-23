@@ -36,4 +36,4 @@ import collabroutes from "./Routes/other.routes.js";
 app.use("/api/collabs", collabroutes);
 console.log("aaya hu otherroutes ke section mein maa ke khane ki kasam ");
 
-export { app };
+export { app }; 

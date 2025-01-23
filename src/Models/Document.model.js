@@ -28,7 +28,7 @@ const DocumentSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
           required: true,
-        },
+        },    
         permission: { 
           type: String, 
           default: "view"
