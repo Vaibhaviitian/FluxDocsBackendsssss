@@ -1,7 +1,7 @@
 import { DocumentModel } from "../Models/Document.model.js";
 import { UserModel } from "../Models/User.model.js";
 import ApiResponse from "../Utils/Apiresponse.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
