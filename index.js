@@ -3,8 +3,8 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import connectDB from "./db/index.db.js";
-import { DocumentModel } from "./Models/Document.model.js";
+import connectDB from "./src/DB/index.db.js";
+import { DocumentModel } from "./src/Models/Document.model.js";
 import { app } from "./app.js";
 
 dotenv.config();
